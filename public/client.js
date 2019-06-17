@@ -26,7 +26,7 @@ $(() => {
     $(`#todos [data-id=${id}]`).remove();
   };
 
-  var addAllTodos = (todos) => {
+  var addAllTodos = (todos) => { // array with objects
     _.each(todos, (todo) => {
       addTodo(todo);
     });

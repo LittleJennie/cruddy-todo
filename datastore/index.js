@@ -23,16 +23,39 @@ exports.create = (text, callback) => {
         callback(null, { id, text });
       }
     });
-    // invoke the cb from line 10 similar to line 13; 
   });
 
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  // var data = _.map(items, (text, id) => {
+  //   return { id, text };
+  // });
+  // callback(null, data);
+
+  fs.readdir(exports.dataDir, (err, files) => {
+    if (err) {
+      throw ('error reading all files');
+    } else {
+      // create an array to store the file object
+      var fileObjArr = [];
+
+      // loop through files arr
+      files.forEach((file) => {
+        // create an object for each file and push to the new file array in line 23
+        // grab id from files name --> trim to have only the first five characters
+        var fileObj = {
+          id: file.slice(0, -4),
+          text: file.slice(0, -4)
+        };
+        fileObjArr.push(fileObj);
+      });
+
+      // then we use this new file array to pass in to cb
+      callback(null, fileObjArr);
+    }
   });
-  callback(null, data);
+
 };
 
 exports.readOne = (id, callback) => {
