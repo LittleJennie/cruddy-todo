@@ -47,7 +47,7 @@ exports.getNextUniqueId = (cb) => {
       } else {
         cb(null, counterString);
       }
-    })
+    });
   }); 
 
 };

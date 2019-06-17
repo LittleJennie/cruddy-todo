@@ -11,7 +11,7 @@ $(() => {
   `);
 
   var renderTodo = (todo) => {
-    return template(todo);
+    return template(todo); // the todo here is an object
   };
 
   var addTodo = (todo) => {
