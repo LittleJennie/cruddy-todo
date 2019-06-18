@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
 
 var items = {};
 
@@ -32,27 +33,36 @@ exports.readAll = (callback) => {
   //   return { id, text };
   // });
   // callback(null, data);
+  var readFile = Promise.promisify(fs.readFile);
 
-  fs.readdir(exports.dataDir, (err, files) => {
+  fs.readdir(exports.dataDir, (err, fileNames) => {
     if (err) {
       throw ('error reading all files');
     } else {
-      // create an array to store the file object
-      var fileObjArr = [];
-
-      // loop through files arr
-      files.forEach((file) => {
-        // create an object for each file and push to the new file array in line 23
-        // grab id from files name --> trim to have only the first five characters
-        var fileObj = {
-          id: file.slice(0, -4),
-          text: file.slice(0, -4)
-        };
-        fileObjArr.push(fileObj);
+      // files => an array of the file names => ['01.txt', '02.txt']
+      // first to sanitize this array to ['01', '02']
+      var fileIds = fileNames.map((fileName) => {
+        return fileName.slice(0, -4);
       });
-
-      // then we use this new file array to pass in to cb
-      callback(null, fileObjArr);
+      
+      // set up a object array for the files
+      // read each file using the id --> within each read, need to populate the text in the individual object
+      var fileObjArr = fileIds.map( (id) => {
+        return readFile(path.join(exports.dataDir, `${id}.txt`), 'utf8')
+          .then ((filedata) => (
+            {
+              id: '001', 
+              text: filedata
+            }
+          ));
+      });
+      // at the really end, we call callback function with the result of this object array
+      Promise.all(fileObjArr).then( 
+        () => {
+          console.log(fileObjArr);
+          callback(null, fileObjArr);
+        }
+      );
     }
   });
 
@@ -67,7 +77,7 @@ exports.readOne = (id, callback) => {
   // }
   var filePath = path.join(exports.dataDir, `${id}.txt`);
 
-  fs.readFile(filePath, "utf8", (err, fileData) => {
+  fs.readFile(filePath, 'utf8', (err, fileData) => {
     if (err) {
       callback (new Error(`No item with id: ${id}`));
     } else {
@@ -134,3 +144,32 @@ exports.initialize = () => {
     fs.mkdirSync(exports.dataDir);
   }
 };
+
+
+// // create an array to store the file object
+// var fileNameObjArr = [];
+
+// // loop through files arr
+// files.forEach((fileName) => {
+//   // create an object for each file and push to the new file array in line 23
+//   // grab id from files name --> trim to have only the first five characters
+//   var id = fileName.slice(0, -4);
+//   var filePath = path.join(exports.dataDir, `${id}.txt`);
+
+//   var createFileObj = (filedata) => {
+//     var obj = {
+//       id: fileName.slice(0, -4),
+//       text: filedata
+//     }
+//     fileNameObjArr.push(obj);
+//   }
+
+//   readFile(filePath)
+//     .then( // should generate the content of the file
+//       (filedata) => {createFileObj(filedata)}
+//     )
+// });
+
+// // then we use this new file array to pass in to cb
+// console.log(fileNameObjArr)
+// callback(null, fileNameObjArr);
