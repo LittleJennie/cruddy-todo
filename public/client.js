@@ -18,7 +18,7 @@ $(() => {
     $('#todos').append(renderTodo(todo));
   };
 
-  var changeTodo = (id, todo) => {
+  var changeTodo = (id, todo) => { // todo is an object
     $(`#todos [data-id=${id}]`).replaceWith(renderTodo(todo));
   };
 
@@ -48,7 +48,7 @@ $(() => {
       Todo.readOne(id, (todo) => { // todo is an object
         var updatedText = prompt('Change to?', todo.text);
         if (updatedText !== null && updatedText !== todo.text) {
-          Todo.update(id, updatedText, changeTodo.bind(null, id));
+          Todo.update(id, updatedText, changeTodo.bind(null, id)); // changeTodo = (id, todo)
         }
       });
     } else {
