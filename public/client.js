@@ -52,7 +52,7 @@ $(() => {
         }
       });
     } else {
-      Todo.delete(id, removeTodo.bind(null, id));
+      Todo.delete(id, removeTodo.bind(null, id)); // removeTodo = (id)
     }
   });
 
