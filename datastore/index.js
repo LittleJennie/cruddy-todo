@@ -33,6 +33,7 @@ exports.readAll = (callback) => {
   //   return { id, text };
   // });
   // callback(null, data);
+  
   var readFile = Promise.promisify(fs.readFile);
 
   fs.readdir(exports.dataDir, (err, fileNames) => {
@@ -47,22 +48,20 @@ exports.readAll = (callback) => {
       
       // set up a object array for the files
       // read each file using the id --> within each read, need to populate the text in the individual object
-      var fileObjArr = fileIds.map( (id) => {
-        return readFile(path.join(exports.dataDir, `${id}.txt`), 'utf8')
-          .then ((filedata) => (
-            {
-              id: '001', 
-              text: filedata
-            }
-          ));
+      var fileContents = []; // ['aaa', 'bbb']
+      // fileIds 
+      fileIds.forEach(function(id){
+        fileContents.push(readFile(path.join(exports.dataDir, `${id}.txt`), 'utf8'));
       });
+
       // at the really end, we call callback function with the result of this object array
-      Promise.all(fileObjArr).then( 
-        () => {
-          console.log(fileObjArr);
-          callback(null, fileObjArr);
+      Promise.all(fileContents).then((fileContents) => {
+        var fileObjArray = [];
+        for(var i = 0; i < fileIds.length; i++) {
+          fileObjArray.push({id: fileIds[i], text: fileContents[i]});
         }
-      );
+        callback(null, fileObjArray);
+      });
     }
   });
 
@@ -129,7 +128,7 @@ exports.delete = (id, callback) => {
     if (err) {
       callback(new Error(`No item with id: ${id}`));
     } else {
-      callback(id);
+      callback(null, id);
     }
   });
 
